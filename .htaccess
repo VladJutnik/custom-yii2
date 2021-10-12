@@ -1,0 +1,15 @@
+	AddDefaultCharset UTF-8
+    Options -Indexes
+    RewriteEngine On
+    
+    # если /admin, то в backend
+     RewriteCond %{REQUEST_URI} ^/
+     RewriteRule ^(\/?.*)$ backend/web/$1 [L]
+
+    # RewriteCond %{REQUEST_URI} ^/
+     # RewriteRule ^(\/?.*)$ backend/web/$1 [L]
+
+    # если /, то в frontend
+    # RewriteCond %{REQUEST_URI} ^/
+    # RewriteRule ^(\/?.*)$ frontend/web/$1 [L]
+    
