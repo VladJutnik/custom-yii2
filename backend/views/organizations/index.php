@@ -121,7 +121,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 if ($model->status_print == '')
                                 {
                                     return
-                                        Html::button('Модфльное окно с выбором', [
+                                        Html::button('Модальное окно с выбором', [
                                             'data_id' => $model->id,
                                             'class' => 'btn btn-sm btn-warning btn-block',
                                             'onclick' => '
@@ -185,7 +185,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Печать документов по организации</h5>
+                <h5 class="modal-title">Печать документов по организации:</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">	<span aria-hidden="true">&times;</span>
                 </button>
             </div>

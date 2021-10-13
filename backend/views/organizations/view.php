@@ -11,37 +11,31 @@ $this->params['breadcrumbs'][] = ['label' => 'Organizations', 'url' => ['index']
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
-<div class="organization-view">
-
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <p>
-        <?= Html::a('Обновить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Удалить', ['delete', 'id' => $model->id], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
-    </p>
-
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            //'id',
-            'title',
-            'address',
-            //'phone',
-            'inn',
-            'org_balansodergatel',
-            'position_commissioner',
-            'fio_position_commissioner',
-            'VK_chairman',
-            'VK_chairman_position',
-            'contract_number',
-
-        ],
-    ]) ?>
-
+<div class="container">
+    <div class="card radius-15">
+        <div class="card-body">
+            <div class="card-title">
+                <h4 class="mb-0"><?= Html::encode($this->title) ?></h4>
+                <?= Html::a('Обновить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+                <?= Html::a('Удалить', ['delete', 'id' => $model->id], [
+                    'class' => 'btn btn-danger',
+                    'data' => [
+                        'confirm' => 'Вы действительно хотите удалить организацию?',
+                        'method' => 'post',
+                    ],
+                ]) ?>
+            </div>
+            <hr/>
+            <?= DetailView::widget([
+                'model' => $model,
+                'attributes' => [
+                    'title',
+                    'address',
+                    'phone',
+                    'email',
+                    'inn',
+                ],
+            ]) ?>
+        </div>
+    </div>
 </div>
