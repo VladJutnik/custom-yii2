@@ -1,9 +1,5 @@
 <p align="center">
-    <a href="https://github.com/yiisoft" target="_blank">
-        <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
-    </a>
     <h1 align="center">Yii 2 Advanced Простой пример</h1>
-    <br>
 </p>
 
 Yii 2 Advanced Project Template - демонстрационный вариант, вернее частичка моих возможностей в yii, часть кода взята с реального работающего проекта!
@@ -91,7 +87,7 @@ ____
 ___
 
 ## Компонентная модель
-![Пример работы](image/component.PNG)
+![Пример работы](image/component.png)
 ```
  'myComponent' => [
             'class' => 'common\components\MyComponent',
@@ -183,12 +179,12 @@ ___
 
 ## Скрины
 >__Личный кабинет:__
->![Пример работы](image/main1.PNG)
->![Пример работы](image/main2.PNG)
+>![Пример работы](image/main1.png)
+>![Пример работы](image/main2.png)
 >__Работа с организацией:__
->![Пример работы](image/organization1.PNG)
->![Пример работы](image/organization2.PNG)
->![Пример работы](image/organization3.PNG)
+>![Пример работы](image/organization1.png)
+>![Пример работы](image/organization2.png)
+>![Пример работы](image/organization3.png)
 
 ____
 [:arrow_up:В данном примере реализованно](#В-данном-примере-реализованно)
