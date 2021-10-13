@@ -42,7 +42,7 @@ return [
             'class' => 'yii\db\Connection',
             'dsn' => 'mysql:host=localhost;dbname=custom-yii2',
             'username' => 'root',
-            'password' => 'Lampa6516',
+            'password' => 'root',
             'charset' => 'utf8',
         ],
         //это БД где лежат справочная информация что бы не засерать основу и копия бд не были слишком большие!
@@ -50,21 +50,9 @@ return [
             'class' => 'yii\db\Connection',
             'dsn' => 'mysql:host=localhost;dbname=constantly',
             'username' => 'root',
-            'password' => 'Lampa6516',
+            'password' => 'root',
             'charset' => 'utf8',
         ],
-        /*'mailer' => [
-            'class' => 'yii\swiftmailer\Mailer',
-            'transport' => [
-                'class' => 'Swift_SmtpTransport',
-                'host' => 'smtp.yandex.ru',
-                'username' => '1@niig.su',
-                'password' => 'Lampa6516',
-                'port' => 465,
-                'encryption' => 'ssl',
-            ],
-            'useFileTransport' => false,
-        ],*/
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
@@ -77,9 +65,9 @@ return [
                     'mailer' => 'mailer',
                     'levels' => ['error'],
                     'message' => [
-                        'from' => ['1@niig.su'],
-                        'to' => ['jutnik_va@niig.su'],
-                        'subject' => 'Ошибка в программе медосмотр!',
+                        'from' => [''],
+                        'to' => [''],
+                        'subject' => 'Ошибка в программе',
                     ],
                     'except' => [
                         'yii\web\HttpException:404',
