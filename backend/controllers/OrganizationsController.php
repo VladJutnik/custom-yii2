@@ -725,5 +725,77 @@ class OrganizationsController extends Controller
 
         throw new NotFoundHttpException('The requested page does not exist.');
     }
+    //чтение из файла
+    public function actionLoading()
+    {
+        if (Yii::$app->user->isGuest)
+        {
+            return $this->goHome();
+        }
+        $model = new LoadingPatient();
+        $organisation = Organization::find()->select(['id', 'title'])->all();
+        $organization_title_item = ArrayHelper::map($organisation, 'id', 'title');
+        $loads = LoadingPatient::find()->orderby(['create_at' => SORT_DESC])->limit(8)->all();
+        if (Yii::$app->request->post()) {
+            $post = Yii::$app->request->post()['LoadingPatient'];
+            if ($_FILES) {
+                $path = "list-patient-upl/"; //папака в которой лежит файл
+                $extension = strtolower(substr(strrchr($_FILES['LoadingPatient']['name']['file'], '.'), 1));//узнали в каком формате файл пришел
+                $file_name = $model->randomFileName($path, $extension); // сделали новое имя с проверкой есть ли такое имя в папке
+                if(move_uploaded_file($_FILES['LoadingPatient']['tmp_name']['file'], $path.$file_name)){ // переместили из временной папки, в которую изначально загрулся файл в новую директорию с новым именем
+                    if(($file_list = fopen($path.$file_name, 'r')) !== false){//ищем файл в директории
+                        $j = 0;
+                        $out = [];
+                        while (($data = fgetcsv($file_list, 2000, ";")))//читаем фйал в директории
+                        {
+                            for($i = 0; $i<count($data); $i++){
+                                $out[$j][$i] .= $data[$i];
+                            }
+                            $j++;
+                        }
+                        unset($out[0]);
+                        $out_save = array_values($out);
+                        for($i = 1; $i <= count($out_save); $i++){
+                            $model2 = new ListPatients();
+                            $model2->organization_id = $post['organization_id'];
+                            $model2->fio = $out[$i][1];
+                            $model2->order_type = 1;
+                            $model2->address_overall = $out[$i][2];
+                            $model2->street = $out[$i][3];
+                            $model2->house = $out[$i][4];
+                            $model2->department = $out[$i][5];
+                            $model2->post_profession = $out[$i][6];
+                            $model2->save(false);
+                        }
+                        $model3 = new LoadingPatient();
+                        $model3->user_id = Yii::$app->user->identity->id;
+                        $model3->organization_id = $post['organization_id'];
+                        $model3->file_name = $file_name;
+                        $model3->number_rows = count($out_save);
+                        $model3->save(false);
+                        $model = new LoadingPatient();
+                        return $this->render('viev', [
+                            'model' => $model,
+                            'organization_title_item' => $organization_title_item,
+                        ]);
+                    }
+                    else{
+                        Yii::$app->session->setFlash('error', "Не удалось прочесть файл!");
+                    }
+                }
+                else{
+                    Yii::$app->session->setFlash('error', "Не удалось загрузить файл!");
+                }
+            }
+            else{
+                Yii::$app->session->setFlash('error', "Что то пошло не так!");
+            }
 
+        }
+        return $this->render('create', [
+            'model' => $model,
+            'loads' => $loads,
+            'organization_title_item' => $organization_title_item,
+        ]);
+    }
 }
