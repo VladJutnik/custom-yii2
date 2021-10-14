@@ -695,20 +695,182 @@ class OrganizationsController extends Controller
     //Ворд
     public function actionExporting($id)
     {
-        ini_set("pcre.backtrack_limit", "5000000");
-        require_once Yii::$app->basePath . '\Word\PhpWord.php';
-        require_once Yii::$app->basePath . '\Word\PhpWord\IOFactory.php';
+        if (Yii::$app->user->isGuest)
+        {
+            return $this->goHome();
+        }
 
-        $document = new \PhpWord();
+        $patient = ListPatients::findOne($id);
+        $organizations = Organization::find()->where(['id' => $patient->organization_id])->one();
+        $profpotolog = ProfessionalPathologist::find()->where(['user_id' => $patient->id])->one();
+        if ($patient->zone == '' || $patient->zone == 'Нет' || $patient->zone == 'нет' || $patient->zone == '0')
+        {
+            $zone = '';
+        }
+        else
+        {
+            $zone = '; корпус ' . $patient->zone;
+        }
 
-        $section = $document->addSection();
-        $section->addText(
-            '"Learn from yesterday, live for today, hope for tomorrow. '
-            . 'The important thing is not to stop questioning." '
-            . '(Albert Einstein)'
+        if ($patient->address_overall == '')
+        {
+            $overall = '';
+        }
+        else
+        {
+            $overall = $patient->address_overall . '; ';
+        }
+
+        require_once __DIR__ . '/../../vendor/autoload.php';
+
+        $phpWord = new \PhpOffice\PhpWord\PhpWord();
+
+        $phpWord->setDefaultFontName('Times New Roman');
+        $sectionStyle = array(
+            //'orientation' => 'landscape', // альбомная ориентация страницы
+            'marginTop' => '800', // по-умолчанию равен 1418* и соответствует 2,5 см отступа сверху
+            //'marginLeft' => '0', // по-умолчанию равен 1418* и соответствует 2,5 см отступа слева
+            //'marginRight' => '0', // по-умолчанию равен 1418* и соответствует 2,5 см отступа справа
+            //'marginBottom' => '0', // по-умолчанию равен 1134* и соответствует 2 см отступа снизу
+            //'pageSizeW' => '8419', // по-умолчанию равен 11906* и соответствует 210 мм по ширине
+            //'pageSizeH' => '11906', // по-умолчанию равен 16838* и соответствует 297 мм по высоте
+            //'borderColor'=>'999999', // Цвет ненужного бордюра
+            //'borderSize'=>'100', // Ширина ненужного бордюра*
         );
-        $objWriter = \PHPWord_IOFactory::createWriter($document, 'Excel2007');
-        $objWriter->save('php://output');
+        $sectionStyle2 = array(
+            //'orientation' => 'landscape', // альбомная ориентация страницы
+            'marginTop' => '1418', // по-умолчанию равен 1418* и соответствует 2,5 см отступа сверху
+            //'marginLeft' => '0', // по-умолчанию равен 1418* и соответствует 2,5 см отступа слева
+            //'marginRight' => '0', // по-умолчанию равен 1418* и соответствует 2,5 см отступа справа
+            //'marginBottom' => '0', // по-умолчанию равен 1134* и соответствует 2 см отступа снизу
+            //'pageSizeW' => '8419', // по-умолчанию равен 11906* и соответствует 210 мм по ширине
+            //'pageSizeH' => '11906', // по-умолчанию равен 16838* и соответствует 297 мм по высоте
+            //'borderColor'=>'999999', // Цвет ненужного бордюра
+            //'borderSize'=>'100', // Ширина ненужного бордюра*
+        );
+
+        //<w:br/> - перенос троки!!!1
+        $section = $phpWord->addSection($sectionStyle);
+        // добавление текстового элемента в раздел со стилем шрифта по умолчанию...
+
+        $textbox =
+            $section->addTextBox(
+                array(
+                    //'alignment'    => \PhpOffice\PhpWord\SimpleType\Jc::CENTER,
+                    'width' => 280,
+                    'height' => 100,
+                    //'borderSize'  => 0,
+                    'borderSize' => 'none',
+                    'borderColor' => 'white')
+            );
+        $textbox->addText(
+            'ФБУН «Новосибирский НИИ гигиены» Роспотребнадзора
+        <w:br/>Лицензия ФС-54-01-002243 от 05.07.2021 г.
+        <w:br/>630108, Новосибирская область, город Новосибирск,
+        <w:br/>улица Пархоменко, 7',
+            array(
+                'size' => 10,
+
+            ),
+            array(
+                'align' => 'center',
+            )
+
+        );
+        $textbox->addText(
+            '<w:br/>Код ОГРН: 1035401488858',
+            array(
+                'size' => 10,
+
+            ),
+            array(
+                'align' => 'left',
+            )
+
+        );
+
+        $section->addText("Медицинское заключение о пригодности или непригодности к выполнению отдельных видов работ",
+            array(
+                'align' => 'center',
+                'bold' => true,
+                'size' => 16,
+            ),
+            array(
+                'align' => 'center',
+                'bold' => true,
+                'size' => 16,
+            )
+        );
+
+        $section->addText($profpotolog->date_professional_aptitude.' года. N ______',
+            array(
+                'align' => 'center',
+            ),
+            array(
+                'align' => 'center',
+            )
+        );
+        $section->addTextBreak();
+
+        $textrun = $section->addTextRun();
+        $textrun->addText('Фамилия, имя, отчество: ', array('bold' => true));
+        $textrun->addText($patient->fio, array());
+
+        $textrun = $section->addTextRun();
+        $textrun->addText('Дата рождения: ', array('bold' => true));
+        $textrun->addText($patient->date_birth, array());
+
+        $textrun = $section->addTextRun();
+        $textrun->addText('Место регистрации: ', array('bold' => true));
+        $textrun->addText($patient->get_district($patient->federal_district_id) . '; ' . $patient->get_region($patient->region_id) . '; ' . $patient->get_municipality($patient->municipality_id) . '; ' . $overall . ' ул. ' . $patient->street . $zone . '; д. ' . $patient->house . '; кв. ' . $patient->flat, array());
+
+        $textrun = $section->addTextRun();
+        $textrun->addText('Наименование работодателя: ', array('bold' => true));
+        $textrun->addText($patient->fio, array());
+
+        $textrun = $section->addTextRun();
+        $textrun->addText('Наименование   структурного    подразделения    работодателя,   должности
+        (профессии) или вида работы: ', array('bold' => true));
+        $textrun->addText($patient->get_type($patient->organization_id), array());
+        if ($patient->order_type == '1')
+        {
+            $textrun = $section->addTextRun();
+            $textrun->addText('Виды работ, к которым выявлены медицинские противопоказания: ', array('bold' => true));
+            $textrun->addText($patient->translation_bd_down_pril1_print_v2_kind_work2($patient->id), array());
+        }else{
+            $textrun = $section->addTextRun();
+            $textrun->addText('Виды работ, к которым выявлены медицинские противопоказания: ', array('bold' => true));
+            $textrun->addText('приложение 1 - ' . $patient->factors_list_patients_pr1($patient->id) . ' приложение 2 - ' . $patient->factors_list_patients_pr2($patient->id), array());
+        }
+
+        $textrun = $section->addTextRun();
+        $textrun->addText('Заключение врачебной комиссии (нужное подчеркнуть): ', array('bold' => true));
+
+        $section->addText('1. Работник  признан  пригодным  по  состоянию  здоровья   к   выполнению
+        отдельных видов работ. ');
+
+        $section->addText('2. Работник  признан   временно   непригодным   по   состоянию   здоровья
+        к отдельным видам работ. ');
+
+        $section->addText('3. Работник  признан   постоянно   непригодным   по  состоянию   здоровья
+        к отдельным видам работ. ');
+
+        $textrun = $section->addTextBreak();
+
+        $textrun = $section->addTextRun();
+        $textrun->addText('Председатель врачебной комиссии: ', array('bold' => true));
+        $textrun = $section->addTextBreak();
+        $textrun = $section->addTextBreak();
+        $textrun = $section->addTextRun();
+        $textrun->addText('Члены врачебной комиссии: ', array('bold' => true));
+
+
+        $phpWord->getCompatibility()->setOoxmlVersion(15);
+        $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007', $download = true);
+
+        header("Content-Disposition: attachment; filename='wdwdwdwdwd.docx'");
+
+        $objWriter->save("php://output");
         exit;
     }
 
